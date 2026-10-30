@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a0a0f">
+<title>Comparador de Cooldowns</title>
+<style>
+:root{
+  --bg:#0a0a0f; --panel:#13131a; --panel2:#181822; --line:#272735;
+  --text:#e8e8ee; --muted:#8a8a9a; --gold:#d4af37;
+  --c-A:#22d3ee; --c-B:#ef4444; --c-C:#22c55e; --c-D:#a855f7; --c-E:#eab308;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace;
+  --sans:"Rajdhani","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background-color:var(--bg);
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:40px 40px;
+  color:var(--text); font-family:var(--sans); font-size:14px;
+  display:flex; flex-direction:column; min-height:100%;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+.top{display:flex;align-items:center;gap:14px;padding:14px 18px 6px;max-width:1700px;width:100%;margin:0 auto}
+.top h1{margin:0;font-size:20px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.top .sub{color:var(--muted);font-size:13px}
+.wrap{flex:1;padding:8px 18px 18px;max-width:1700px;width:100%;margin:0 auto;overflow-x:auto}
+#grid{display:grid;grid-template-columns:repeat(5,minmax(215px,1fr));gap:12px;align-items:start}
+
+/* ---- columna ---- */
+.slot{--c:var(--c-A);display:flex;flex-direction:column;gap:10px;min-width:0}
+.slot[data-k=B]{--c:var(--c-B)} .slot[data-k=C]{--c:var(--c-C)}
+.slot[data-k=D]{--c:var(--c-D)} .slot[data-k=E]{--c:var(--c-E)}
+.pickwrap{position:relative}
+.picker{
+  width:100%;display:flex;align-items:center;gap:9px;height:46px;padding:0 12px 0 10px;text-align:left;
+  background:color-mix(in srgb,var(--c) 9%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--c) 70%,#000);border-radius:4px;
+}
+.picker:hover{background:color-mix(in srgb,var(--c) 15%,var(--panel))}
+.letter{color:var(--c);font-weight:700;font-size:15px}
+.pic{width:28px;height:28px;border-radius:3px;background:#0c0c12;border:1px solid var(--line);overflow:hidden;flex:none}
+.pic img{width:100%;height:100%;display:block}
+.pname{flex:1;min-width:0;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pname.empty{color:var(--muted)}
+.chev{width:14px;height:14px;color:var(--muted);flex:none}
+.clear{
+  position:absolute;top:2px;right:2px;width:16px;height:16px;line-height:14px;padding:0;border:0;background:none;
+  color:var(--c);font-size:14px;display:none;z-index:2
+}
+.clear.on{display:block}
+.dd{
+  display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;min-width:240px;z-index:30;
+  background:#101017;border:1px solid var(--c);border-radius:4px;box-shadow:0 12px 30px rgba(0,0,0,.6);
+  max-height:380px;flex-direction:column
+}
+.dd.open{display:flex}
+.dd input{
+  background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--text);
+  font:inherit;padding:11px 12px;outline:none
+}
+.dd ul{list-style:none;margin:0;padding:0;overflow-y:auto}
+.dd li{display:flex;gap:10px;align-items:center;padding:7px 12px;cursor:pointer}
+.dd li:hover,.dd li.hl{background:color-mix(in srgb,var(--c) 18%,#101017)}
+.dd li img{width:30px;height:30px;border-radius:3px;border:1px solid var(--line);flex:none}
+.dd li b{display:block;font-weight:600}
+.dd li small{color:var(--muted);font-size:12px}
+.dd .none{padding:14px;color:var(--muted);text-align:center}
+
+/* ---- modificadores ---- */
+.mods{
+  background:var(--panel);padding:8px 10px 10px;border-radius:3px;
+  border:1px solid color-mix(in srgb,var(--c) 60%,#000)
+}
+.mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.mlabel{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.mlabel b{color:var(--c);font-weight:700}
+.reset{background:none;border:0;color:var(--muted);font-size:11px;display:flex;gap:6px;align-items:center;padding:2px 0}
+.reset:hover{color:var(--text)}
+.reset svg{width:14px;height:14px}
+.mrow{display:flex;gap:8px;align-items:flex-start;margin-top:7px}
+.mrow>span{width:48px;flex:none;white-space:nowrap;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:6px}
+.opts{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+.opt{
+  min-width:26px;padding:3px 7px;border:1px solid var(--line);background:var(--panel2);
+  border-radius:3px;font-size:11px;font-family:var(--mono);color:#c9c9d6
+}
+.opt:hover{border-color:#44445a}
+.opt.on{background:var(--gold);border-color:var(--gold);color:#17130a;font-weight:700}
+.haste{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;flex:1}
+.haste .opt{text-align:center;padding:5px 0}
+
+/* ---- cooldowns ---- */
+.cds{
+  border-radius:3px;min-height:260px;padding:10px 10px 6px;
+  border:1px solid color-mix(in srgb,var(--c) 60%,#000);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 8%,var(--panel)),var(--panel) 40%)
+}
+.cds.empty{
+  border-style:dashed;background:transparent;display:flex;align-items:center;justify-content:center;
+  text-align:center;color:var(--muted);font-size:12px;padding:20px 24px
+}
+.ctitle{font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.ctitle b{color:var(--c);margin-right:6px}
+.spell{display:flex;gap:10px;align-items:flex-start;padding:10px 0 14px}
+.sico{position:relative;width:38px;height:38px;flex:none}
+.sico img,.sico .ph{width:100%;height:100%;display:block;border-radius:4px;border:1px solid #3a3a4c;background:#0c0c12}
+.key{
+  position:absolute;right:-3px;bottom:-4px;width:14px;height:14px;border-radius:3px;
+  background:#1d1d29;border:1px solid #3a3a4c;font-size:9px;font-weight:700;line-height:12px;text-align:center
+}
+.key.r{background:var(--gold);border-color:var(--gold);color:#17130a}
+.sinfo{min-width:0;flex:1}
+.sname{font-weight:600;font-size:13px;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{
+  font-family:var(--mono);font-size:11px;padding:1px 6px;border-radius:3px;
+  background:#0d0d13;border:1px solid var(--line);color:#d6d6e2
+}
+
+/* ---- pie ---- */
+.foot{
+  max-width:1700px;width:100%;margin:0 auto;padding:10px 18px 18px;display:flex;flex-wrap:wrap;gap:12px;
+  align-items:center;color:var(--muted);font-size:12px
+}
+.foot button{background:none;border:1px solid var(--line);border-radius:3px;padding:3px 10px;color:var(--muted)}
+.foot button:hover{color:var(--text);border-color:#44445a}
+
+/* ---- primera descarga ---- */
+#setup{position:fixed;inset:0;background:rgba(6,6,10,.92);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+#setup.show{display:flex}
+.card{max-width:460px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px}
+.card h2{margin:0 0 8px;font-size:18px;letter-spacing:.1em;text-transform:uppercase}
+.card p{margin:0 0 14px;color:#b6b6c4;line-height:1.45}
+.btn{background:var(--gold);color:#17130a;border:0;border-radius:3px;padding:9px 16px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.btn:disabled{opacity:.5;cursor:default}
+.bar{height:6px;background:#0d0d13;border-radius:3px;overflow:hidden;margin:14px 0 8px;display:none}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .15s}
+#setupMsg{font-size:12px;color:var(--muted);min-height:16px}
+#setupMsg.err{color:#f87171}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>Comparador de Cooldowns</h1>
+  <span class="sub">5 campeones · ability haste, runa y modificadores de ultimate</span>
+</div>
+
+<div class="wrap"><div id="grid"></div></div>
+
+<div class="foot">
+  <span id="info">Sin datos todavía</span>
+  <button id="updBtn" type="button">Buscar actualización</button>
+  <span id="updMsg"></span>
+  <span style="margin-left:auto">Datos de Riot Data Dragon. Herramienta personal no afiliada a Riot Games.</span>
+</div>
+
+<div id="setup">
+  <div class="card">
+    <h2 id="setupTitle">Primera descarga</h2>
+    <p id="setupText">Para funcionar sin conexión, la app necesita descargar una sola vez los campeones, sus cooldowns y los iconos desde Riot Data Dragon (unos pocos MB). Se guardan en este navegador. Necesitas internet solo ahora.</p>
+    <button class="btn" id="setupBtn" type="button">Descargar datos</button>
+    <div class="bar" id="bar"><i id="barFill"></i></div>
+    <div id="setupMsg"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================  CONFIGURACIÓN (editable)  ===================== */
+const KEYS = ['A','B','C','D','E'];
+const HASTE = [0,10,20,30,40,50,60,70,80];
+const RUNE_HASTE = 8;                       // botón "+8 Haste"
+const SOLO_R = [                            // solo afectan a la R (ultimate haste)
+  { id:'uh', label:'Ult Hunter',  v:6  },   // 6 base (+5 por cada stack, hasta 31)
+  { id:'fh', label:'Fiendhunter', v:30 },
+  { id:'hp', label:'Hexplate',    v:30 },
+  { id:'mg', label:'Malignance',  v:20 },
+];
+const DD = 'https://ddragon.leagueoflegends.com';
+const LS_KEY = 'cooldowns-5-v1';
+/* ===================================================================== */
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const cdWith = (base, haste) => base * 100 / (100 + haste);
+const fmt = n => {
+  if (!n) return '—';
+  const r = Math.round(n * 10) / 10;
+  return (Number.isInteger(r) ? r : r.toFixed(1)) + 's';
+};
+
+/* ----------------------------- IndexedDB ----------------------------- */
+let db;
+function openDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('lol-cooldowns-offline', 1);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      d.createObjectStore('meta'); d.createObjectStore('champs'); d.createObjectStore('icons');
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+const rq = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const store = (s, m = 'readonly') => db.transaction(s, m).objectStore(s);
+const idbGet = (s, k) => rq(store(s).get(k));
+const idbAll = s => rq(store(s).getAll());
+const idbKeys = s => rq(store(s).getAllKeys());
+const idbPut = (s, k, v) => new Promise((res, rej) => {
+  const t = db.transaction(s, 'readwrite'); t.objectStore(s).put(v, k);
+  t.oncomplete = res; t.onerror = () => rej(t.error);
+});
+const idbReplaceAll = (s, entries) => new Promise((res, rej) => {
+  const t = db.transaction(s, 'readwrite'); const o = t.objectStore(s);
+  o.clear(); entries.forEach(([k, v]) => o.put(v, k));
+  t.oncomplete = res; t.onerror = () => rej(t.error);
+});
+
+/* ------------------------------- datos ------------------------------- */
+let champs = [], byId = new Map(), meta = null;
+const iconURL = new Map();
+
+async function ensureIcons(keys) {
+  await Promise.all(keys.filter(k => !iconURL.has(k)).map(async k => {
+    try { const b = await idbGet('icons', k); if (b) iconURL.set(k, URL.createObjectURL(b)); } catch (_) {}
+  }));
+}
+
+async function loadData() {
+  const info = await idbGet('meta', 'info');
+  if (!info || !info.complete) return false;
+  champs = await idbAll('champs');
+  champs.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  byId = new Map(champs.map(c => [c.id, c]));
+  await ensureIcons(champs.map(c => 'c/' + c.img));
+  meta = info;
+  return true;
+}
+
+async function fetchOk(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status + ' en ' + url);
+  return r;
+}
+
+async function download(onProgress) {
+  onProgress(0, 'Consultando la última versión…');
+  const versions = await (await fetchOk(DD + '/api/versions.json')).json();
+  const ver = versions[0];
+  onProgress(0, 'Descargando campeones y cooldowns (parche ' + ver + ')…');
+  const full = await (await fetchOk(DD + '/cdn/' + ver + '/data/en_US/championFull.json')).json();
+
+  const list = Object.values(full.data).map(c => ({
+    id: c.id, name: c.name, title: c.title, img: c.image.full,
+    spells: c.spells.map(s => ({ id: s.id, name: s.name, cd: s.cooldown, img: s.image.full })),
+  })).sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  await idbReplaceAll('champs', list.map(c => [c.id, c]));
+
+  const wanted = [];
+  list.forEach(c => {
+    wanted.push({ key: 'c/' + c.img, url: DD + '/cdn/' + ver + '/img/champion/' + c.img });
+    c.spells.forEach(s => wanted.push({ key: 's/' + s.img, url: DD + '/cdn/' + ver + '/img/spell/' + s.img }));
+  });
+  const have = new Set(await idbKeys('icons'));
+  const todo = wanted.filter(w => !have.has(w.key));
+
+  let done = 0, failed = 0, i = 0;
+  const worker = async () => {
+    while (i < todo.length) {
+      const it = todo[i++];
+      try {
+        const blob = await (await fetchOk(it.url)).blob();
+        await idbPut('icons', it.key, blob);
+      } catch (_) { failed++; }
+      done++;
+      onProgress(done / Math.max(todo.length, 1), 'Descargando iconos ' + done + ' / ' + todo.length);
+    }
+  };
+  await Promise.all(Array.from({ length: 10 }, worker));
+
+  const info = { complete: true, version: ver, count: list.length, missing: failed, at: Date.now() };
+  await idbPut('meta', 'info', info);
+  return info;
+}
+
+/* ------------------------------- estado ------------------------------ */
+const blank = () => ({ champ: null, haste: 0, rune: false, solo: [] });
+let state = { slots: KEYS.map(blank) };
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(LS_KEY));
+    if (s && Array.isArray(s.slots) && s.slots.length === KEYS.length) {
+      state.slots = s.slots.map(x => ({
+        champ: x && byId.has(x.champ) ? x.champ : null,
+        haste: HASTE.includes(x && x.haste) ? x.haste : 0,
+        rune: !!(x && x.rune),
+        solo: Array.isArray(x && x.solo) ? x.solo.filter(id => SOLO_R.some(o => o.id === id)) : [],
+      }));
+    }
+  } catch (_) {}
+}
+const saveState = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) {} };
+
+/* ------------------------------ interfaz ----------------------------- */
+const grid = $('#grid');
+const chevron = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
+const resetIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
+
+grid.innerHTML = KEYS.map(k => `
+  <section class="slot" data-k="${k}">
+    <div class="pickwrap">
+      <button class="picker" type="button" data-act="open" aria-haspopup="listbox"></button>
+      <button class="clear" type="button" data-act="clear" aria-label="Quitar campeón ${k}">×</button>
+      <div class="dd">
+        <input type="text" placeholder="Buscar campeón…" autocomplete="off" spellcheck="false">
+        <ul></ul>
+      </div>
+    </div>
+    <div class="mods"></div>
+    <div class="cds empty"></div>
+  </section>`).join('');
+const slotEls = [...grid.children];
+
+const imgTag = (key, alt = '') => iconURL.has(key) ? `<img src="${iconURL.get(key)}" alt="${esc(alt)}">` : '';
+
+function modsHTML(i) {
+  const s = state.slots[i], k = KEYS[i];
+  return `
+    <div class="mhead">
+      <span class="mlabel">Mods·<b>${k}</b></span>
+      <button class="reset" type="button" data-act="reset">${resetIco}Reset</button>
+    </div>
+    <div class="mrow"><span>Haste</span><div class="haste">
+      ${HASTE.map(h => `<button type="button" class="opt${s.haste === h ? ' on' : ''}" data-act="haste" data-v="${h}">${h}</button>`).join('')}
+    </div></div>
+    <div class="mrow"><span>Runa</span><div class="opts">
+      <button type="button" class="opt${s.rune ? ' on' : ''}" data-act="rune">+${RUNE_HASTE} Haste</button>
+    </div></div>
+    <div class="mrow"><span>Solo R</span><div class="opts">
+      ${SOLO_R.map(o => `<button type="button" class="opt${s.solo.includes(o.id) ? ' on' : ''}" data-act="solo" data-v="${o.id}" title="+${o.v} ultimate haste">${esc(o.label)}</button>`).join('')}
+    </div></div>`;
+}
+
+function hasteFor(s, isUlt) {
+  let h = s.haste + (s.rune ? RUNE_HASTE : 0);
+  if (isUlt) SOLO_R.forEach(o => { if (s.solo.includes(o.id)) h += o.v; });
+  return h;
+}
+
+async function renderSlot(i) {
+  const el = slotEls[i], s = state.slots[i], k = KEYS[i];
+  const ch = s.champ ? byId.get(s.champ) : null;
+  el._r = (el._r || 0) + 1; const token = el._r;
+  if (ch) await ensureIcons(ch.spells.map(x => 's/' + x.img));
+  if (token !== el._r) return;
+
+  $('.picker', el).innerHTML =
+    `<span class="letter">${k}</span>
+     <span class="pic">${ch ? imgTag('c/' + ch.img, ch.name) : ''}</span>
+     <span class="pname${ch ? '' : ' empty'}">${ch ? esc(ch.name) : 'Campeón ' + k}</span>${chevron}`;
+  $('.clear', el).classList.toggle('on', !!ch);
+  $('.mods', el).innerHTML = modsHTML(i);
+
+  const cds = $('.cds', el);
+  if (!ch) {
+    cds.className = 'cds empty';
+    cds.textContent = 'Selecciona un campeón para ver sus cooldowns';
+    return;
+  }
+  cds.className = 'cds';
+  cds.innerHTML = `<div class="ctitle"><b>${k}</b>${esc(ch.name)}</div>` + ch.spells.slice(0, 4).map((sp, n) => {
+    const h = hasteFor(s, n === 3);
+    const ico = imgTag('s/' + sp.img, sp.name) || '<div class="ph"></div>';
+    return `<div class="spell">
+      <div class="sico">${ico}<b class="key${n === 3 ? ' r' : ''}">${'QWER'[n]}</b></div>
+      <div class="sinfo"><div class="sname" title="${esc(sp.name)}">${esc(sp.name)}</div>
+        <div class="chips">${sp.cd.map(b => `<span class="chip">${fmt(cdWith(b, h))}</span>`).join('')}</div></div>
+    </div>`;
+  }).join('');
+}
+const renderAll = () => Promise.all(KEYS.map((_, i) => renderSlot(i)));
+
+/* ---------------------------- desplegable ---------------------------- */
+let openIdx = -1;
+function closeDD() {
+  if (openIdx >= 0) slotEls[openIdx].querySelector('.dd').classList.remove('open');
+  openIdx = -1;
+}
+function fillDD(i, q = '') {
+  const ul = $('ul', slotEls[i]), n = norm(q.trim());
+  const rows = champs.filter(c => !n || norm(c.name).includes(n) || norm(c.title).includes(n));
+  ul.innerHTML = rows.length
+    ? rows.map((c, x) => `<li data-id="${esc(c.id)}"${x === 0 ? ' class="hl"' : ''}>
+        ${imgTag('c/' + c.img, c.name)}<span><b>${esc(c.name)}</b><small>${esc(c.title)}</small></span></li>`).join('')
+    : '<li class="none">Sin resultados</li>';
+}
+function openDD(i) {
+  const was = openIdx; closeDD();
+  if (was === i) return;
+  openIdx = i;
+  const dd = $('.dd', slotEls[i]);
+  dd.classList.add('open');
+  const inp = $('input', dd); inp.value = '';
+  fillDD(i); inp.focus();
+}
+function pick(i, id) {
+  state.slots[i].champ = id; saveState(); closeDD(); renderSlot(i);
+}
+
+grid.addEventListener('click', e => {
+  const slotEl = e.target.closest('.slot');
+  const li = e.target.closest('li[data-id]');
+  if (slotEl && li) return pick(KEYS.indexOf(slotEl.dataset.k), li.dataset.id);
+  const btn = e.target.closest('[data-act]');
+  if (!btn || !slotEl) return;
+  const i = KEYS.indexOf(slotEl.dataset.k), s = state.slots[i];
+  switch (btn.dataset.act) {
+    case 'open':  return openDD(i);
+    case 'clear': s.champ = null; break;
+    case 'haste': s.haste = +btn.dataset.v; break;
+    case 'rune':  s.rune = !s.rune; break;
+    case 'solo': {
+      const id = btn.dataset.v;
+      s.solo = s.solo.includes(id) ? s.solo.filter(x => x !== id) : [...s.solo, id];
+      break;
+    }
+    case 'reset': s.haste = 0; s.rune = false; s.solo = []; break;
+  }
+  saveState(); renderSlot(i);
+});
+grid.addEventListener('input', e => {
+  if (e.target.matches('.dd input')) fillDD(openIdx, e.target.value);
+});
+grid.addEventListener('keydown', e => {
+  if (!e.target.matches('.dd input')) return;
+  if (e.key === 'Enter') {
+    const li = $('li[data-id]', slotEls[openIdx]);
+    if (li) pick(openIdx, li.dataset.id);
+  }
+});
+document.addEventListener('click', e => { if (!e.target.closest('.pickwrap')) closeDD(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDD(); });
+
+/* --------------------- descarga / actualización ---------------------- */
+const setup = $('#setup'), setupBtn = $('#setupBtn'), setupMsg = $('#setupMsg');
+const bar = $('#bar'), barFill = $('#barFill');
+
+function showInfo() {
+  $('#info').textContent = meta
+    ? `Parche ${meta.version} · ${meta.count} campeones` + (meta.missing ? ` · faltan ${meta.missing} iconos (pulsa "Buscar actualización" para reintentar)` : '')
+    : 'Sin datos todavía';
+}
+
+async function runDownload() {
+  setupBtn.disabled = true; bar.style.display = 'block'; setupMsg.className = ''; setupMsg.textContent = '';
+  try {
+    await download((p, msg) => { barFill.style.width = Math.round(p * 100) + '%'; setupMsg.textContent = msg; });
+    await loadData();
+    loadState(); showInfo(); setup.classList.remove('show');
+    await renderAll();
+    return true;
+  } catch (err) {
+    setupMsg.className = 'err';
+    setupMsg.textContent = 'No se pudo descargar: ' + (navigator.onLine === false
+      ? 'no hay conexión a internet.' : err.message) + ' Puedes reintentarlo.';
+    $('#setupBtn').textContent = 'Reintentar';
+    return false;
+  } finally { setupBtn.disabled = false; }
+}
+setupBtn.addEventListener('click', runDownload);
+
+$('#updBtn').addEventListener('click', async () => {
+  const msg = $('#updMsg'); msg.textContent = 'Comprobando…';
+  try {
+    const versions = await (await fetchOk(DD + '/api/versions.json')).json();
+    if (meta && versions[0] === meta.version && !meta.missing) { msg.textContent = 'Ya tienes el último parche (' + meta.version + ').'; return; }
+    msg.textContent = 'Actualizando a ' + versions[0] + '…';
+    $('#setupTitle').textContent = 'Actualizando datos';
+    setup.classList.add('show');
+    const ok = await runDownload();
+    msg.textContent = ok ? 'Actualizado al parche ' + meta.version + '.' : '';
+  } catch (_) {
+    msg.textContent = 'Sin conexión: se siguen usando los datos guardados.';
+  }
+});
+
+/* -------------------------------- inicio ------------------------------ */
+(async () => {
+  try { db = await openDB(); }
+  catch (_) {
+    setup.classList.add('show'); setupBtn.style.display = 'none';
+    setupMsg.className = 'err';
+    setupMsg.textContent = 'Este navegador no permite guardar datos locales (¿modo privado?). Abre el archivo en una ventana normal.';
+    return;
+  }
+  const ok = await loadData();
+  if (!ok) { setup.classList.add('show'); await renderAll(); return; }
+  loadState(); showInfo(); await renderAll();
+})();
+})();
+</script>
+</body>
+</html>
