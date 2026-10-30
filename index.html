@@ -28,7 +28,51 @@ button{font:inherit;color:inherit;cursor:pointer}
 .top{display:flex;align-items:center;gap:14px;padding:14px 18px 6px;max-width:1700px;width:100%;margin:0 auto}
 .top h1{margin:0;font-size:20px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
 .top .sub{color:var(--muted);font-size:13px}
-.wrap{flex:1;padding:8px 18px 18px;max-width:1700px;width:100%;margin:0 auto;overflow-x:auto}
+.wrap{flex:1;padding:0 18px 18px;max-width:1700px;width:100%;margin:0 auto;overflow-x:auto}
+
+/* ---- barra de voz y timers ---- */
+.stickybar{
+  position:sticky;top:0;z-index:25;margin:0 -18px 12px;padding:8px 18px 10px;
+  background:rgba(10,10,15,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)
+}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tool{
+  display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--panel2);
+  border:1px solid var(--line);border-radius:3px;font-size:12px;letter-spacing:.06em;
+  text-transform:uppercase;color:#c9c9d6
+}
+.tool:hover{border-color:#44445a}
+.tool.on{border-color:var(--gold);color:var(--gold)}
+.tool.live{background:#3a1515;border-color:#ef4444;color:#fecaca}
+.tool:disabled{opacity:.45;cursor:default}
+.tool svg{width:14px;height:14px}
+.vstatus{font-size:12px;color:var(--muted);flex:1;min-width:220px}
+.vstatus.err{color:#f87171}
+.vstatus.ok{color:#86efac}
+#timers{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.timer{
+  --c:var(--gold);position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;
+  min-width:200px;padding:7px 8px 7px 12px;border:1px solid color-mix(in srgb,var(--c) 70%,#000);
+  border-radius:3px;background:var(--panel)
+}
+.timer .fill{position:absolute;inset:0 auto 0 0;width:100%;background:color-mix(in srgb,var(--c) 24%,transparent);transition:width .25s linear}
+.timer>*:not(.fill){position:relative}
+.tl{flex:1;font-size:13px;white-space:nowrap}
+.tl b{color:var(--c);letter-spacing:.06em;text-transform:uppercase;font-size:11px;margin-right:4px}
+.tl em{font-style:normal;font-weight:700;border:1px solid #3a3a4c;border-radius:3px;padding:0 4px;font-size:11px;margin-left:2px}
+.tt{font-family:var(--mono);font-size:13px;font-weight:700}
+.tx{background:none;border:0;color:var(--muted);font-size:17px;line-height:1;padding:0 3px}
+.tx:hover{color:var(--text)}
+#timersEmpty{display:block;margin-top:8px;font-size:12px;color:var(--muted)}
+#toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:200;align-items:center;pointer-events:none}
+.toast{
+  background:#17130a;border:1px solid var(--gold);color:#fff3c4;padding:10px 20px;border-radius:4px;
+  font-weight:700;font-size:17px;letter-spacing:.04em;box-shadow:0 8px 30px rgba(0,0,0,.6);animation:pop .2s
+}
+.toast.info{background:var(--panel);border-color:var(--line);color:var(--text);font-weight:600;font-size:13px}
+.toast.err{background:#2a1010;border-color:#7f1d1d;color:#fecaca;font-weight:600;font-size:13px}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
 #grid{display:grid;grid-template-columns:repeat(5,minmax(215px,1fr));gap:12px;align-items:start}
 
 /* ---- columna ---- */
@@ -42,11 +86,11 @@ button{font:inherit;color:inherit;cursor:pointer}
   border:1px solid color-mix(in srgb,var(--c) 70%,#000);border-radius:4px;
 }
 .picker:hover{background:color-mix(in srgb,var(--c) 15%,var(--panel))}
-.letter{color:var(--c);font-weight:700;font-size:15px}
+.letter{color:var(--c);font-weight:700;font-size:12px;letter-spacing:.08em;min-width:26px}
 .pic{width:28px;height:28px;border-radius:3px;background:#0c0c12;border:1px solid var(--line);overflow:hidden;flex:none}
 .pic img{width:100%;height:100%;display:block}
 .pname{flex:1;min-width:0;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pname.empty{color:var(--muted)}
+.pname.empty{color:var(--muted);font-weight:600}
 .chev{width:14px;height:14px;color:var(--muted);flex:none}
 .clear{
   position:absolute;top:2px;right:2px;width:16px;height:16px;line-height:14px;padding:0;border:0;background:none;
@@ -107,8 +151,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .ctitle{font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
 .ctitle b{color:var(--c);margin-right:6px}
 .spell{display:flex;gap:10px;align-items:flex-start;padding:10px 0 14px}
-.sico{position:relative;width:38px;height:38px;flex:none}
+.sico{position:relative;width:38px;height:38px;flex:none;padding:0;background:none;border:0;cursor:pointer}
 .sico img,.sico .ph{width:100%;height:100%;display:block;border-radius:4px;border:1px solid #3a3a4c;background:#0c0c12}
+.sico:hover img,.sico:hover .ph{border-color:var(--gold)}
+.sico:active{transform:scale(.95)}
 .key{
   position:absolute;right:-3px;bottom:-4px;width:14px;height:14px;border-radius:3px;
   background:#1d1d29;border:1px solid #3a3a4c;font-size:9px;font-weight:700;line-height:12px;text-align:center
@@ -118,9 +164,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .sname{font-weight:600;font-size:13px;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chips{display:flex;flex-wrap:wrap;gap:4px}
 .chip{
-  font-family:var(--mono);font-size:11px;padding:1px 6px;border-radius:3px;
+  font-family:var(--mono);font-size:11px;padding:1px 6px;border-radius:3px;cursor:pointer;
   background:#0d0d13;border:1px solid var(--line);color:#d6d6e2
 }
+.chip:hover{border-color:#55556a}
+.chip.sel{border-color:var(--gold);color:var(--gold);background:#17140a}
 
 /* ---- pie ---- */
 .foot{
@@ -148,10 +196,26 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 <div class="top">
   <h1>Comparador de Cooldowns</h1>
-  <span class="sub">5 campeones · ability haste, runa y modificadores de ultimate</span>
+  <span class="sub">Rivales por línea · haste, runa y modificadores de ultimate</span>
 </div>
 
-<div class="wrap"><div id="grid"></div></div>
+<div class="wrap">
+  <div class="stickybar">
+    <div class="tools">
+      <button class="tool" id="micBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        <span id="micTxt">Activar voz</span>
+      </button>
+      <button class="tool on" id="tgSound" type="button" aria-pressed="true">Sonido</button>
+      <button class="tool on" id="tgVoice" type="button" aria-pressed="true">Aviso hablado</button>
+      <button class="tool" id="testBtn" type="button">Probar aviso</button>
+      <span class="vstatus" id="voiceStatus">Voz apagada. Di: «top Q», «jungla R», «mid W nivel 3» o «Q de Darius».</span>
+    </div>
+    <div id="timers"></div>
+    <span id="timersEmpty">Sin timers activos. Toca el icono de una habilidad o usa la voz.</span>
+  </div>
+  <div id="grid"></div>
+</div>
 
 <div class="foot">
   <span id="info">Sin datos todavía</span>
@@ -159,6 +223,8 @@ button{font:inherit;color:inherit;cursor:pointer}
   <span id="updMsg"></span>
   <span style="margin-left:auto">Datos de Riot Data Dragon. Herramienta personal no afiliada a Riot Games.</span>
 </div>
+
+<div id="toasts"></div>
 
 <div id="setup">
   <div class="card">
@@ -175,17 +241,31 @@ button{font:inherit;color:inherit;cursor:pointer}
 'use strict';
 
 /* =====================  CONFIGURACIÓN (editable)  ===================== */
-const KEYS = ['A','B','C','D','E'];
+const KEYS = ['A','B','C','D','E'];          // identificadores internos (colores)
+const ROLES = [                               // orden fijo: 1º Top ... 5º Support
+  { label:'Top',     short:'TOP', words:['top','tope','tob','toplane','top lane'] },
+  { label:'Jungla',  short:'JNG', words:['jungla','yungla','jungle','jungler','jungl','jg','jug'] },
+  { label:'Mid',     short:'MID', words:['mid','mit','medio','media','midlane','mid lane','centro'] },
+  { label:'ADC',     short:'ADC', words:['adc','a d c','a de ce','adece','ad c','ad carry','bot','bota','bottom','tirador'] },
+  { label:'Support', short:'SUP', words:['support','supp','sup','soporte','suport','supor','sopor'] },
+];
 const HASTE = [0,10,20,30,40,50,60,70,80];
-const RUNE_HASTE = 8;                       // botón "+8 Haste"
-const SOLO_R = [                            // solo afectan a la R (ultimate haste)
-  { id:'uh', label:'Ult Hunter',  v:6  },   // 6 base (+5 por cada stack, hasta 31)
+const RUNE_HASTE = 8;                         // botón "+8 Haste"
+const SOLO_R = [                              // solo afectan a la R (ultimate haste)
+  { id:'uh', label:'Ult Hunter',  v:6  },     // 6 base (+5 por cada stack, hasta 31)
   { id:'fh', label:'Fiendhunter', v:30 },
   { id:'hp', label:'Hexplate',    v:30 },
   { id:'mg', label:'Malignance',  v:20 },
 ];
+const SPELL_WORDS = [                         // cómo se "dicen" las habilidades
+  ['q',['q','cu','ku','kiu','que','cue']],
+  ['w',['w','uve doble','doble uve','doble ve','ve doble','doble u','double u','dobleu','uvedoble','doble b']],
+  ['e',['e']],
+  ['r',['r','erre','ere','ulti','ult','ultimate','definitiva','ulty']],
+];
+const VOICE_LANG = 'es-ES';
 const DD = 'https://ddragon.leagueoflegends.com';
-const LS_KEY = 'cooldowns-5-v1';
+const LS_KEY = 'cooldowns-5-v1', LS_TIMERS = 'cooldowns-5-timers-v1', LS_SET = 'cooldowns-5-settings-v1';
 /* ===================================================================== */
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -197,6 +277,13 @@ const fmt = n => {
   const r = Math.round(n * 10) / 10;
   return (Number.isInteger(r) ? r : r.toFixed(1)) + 's';
 };
+const fmtRem = ms => {
+  const s = ms / 1000;
+  if (s >= 60) { const t = Math.ceil(s); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+  return s >= 10 ? Math.ceil(s) + 's' : s.toFixed(1) + 's';
+};
+const lsGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (_) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} };
 
 /* ----------------------------- IndexedDB ----------------------------- */
 let db;
@@ -294,23 +381,25 @@ async function download(onProgress) {
 }
 
 /* ------------------------------- estado ------------------------------ */
-const blank = () => ({ champ: null, haste: 0, rune: false, solo: [] });
+const blank = () => ({ champ: null, haste: 0, rune: false, solo: [], ranks: [0, 0, 0, 0] });
 let state = { slots: KEYS.map(blank) };
+let settings = { sound: true, voice: true };
 
 function loadState() {
-  try {
-    const s = JSON.parse(localStorage.getItem(LS_KEY));
-    if (s && Array.isArray(s.slots) && s.slots.length === KEYS.length) {
-      state.slots = s.slots.map(x => ({
-        champ: x && byId.has(x.champ) ? x.champ : null,
-        haste: HASTE.includes(x && x.haste) ? x.haste : 0,
-        rune: !!(x && x.rune),
-        solo: Array.isArray(x && x.solo) ? x.solo.filter(id => SOLO_R.some(o => o.id === id)) : [],
-      }));
-    }
-  } catch (_) {}
+  const s = lsGet(LS_KEY, null);
+  if (s && Array.isArray(s.slots) && s.slots.length === KEYS.length) {
+    state.slots = s.slots.map(x => ({
+      champ: x && byId.has(x.champ) ? x.champ : null,
+      haste: HASTE.includes(x && x.haste) ? x.haste : 0,
+      rune: !!(x && x.rune),
+      solo: Array.isArray(x && x.solo) ? x.solo.filter(id => SOLO_R.some(o => o.id === id)) : [],
+      ranks: Array.isArray(x && x.ranks) && x.ranks.length === 4 ? x.ranks.map(n => Math.max(0, n | 0)) : [0, 0, 0, 0],
+    }));
+  }
+  settings = Object.assign(settings, lsGet(LS_SET, {}));
 }
-const saveState = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (_) {} };
+const saveState = () => lsSet(LS_KEY, state);
+const saveSettings = () => lsSet(LS_SET, settings);
 
 /* ------------------------------ interfaz ----------------------------- */
 const grid = $('#grid');
@@ -321,7 +410,7 @@ grid.innerHTML = KEYS.map(k => `
   <section class="slot" data-k="${k}">
     <div class="pickwrap">
       <button class="picker" type="button" data-act="open" aria-haspopup="listbox"></button>
-      <button class="clear" type="button" data-act="clear" aria-label="Quitar campeón ${k}">×</button>
+      <button class="clear" type="button" data-act="clear" aria-label="Quitar campeón">×</button>
       <div class="dd">
         <input type="text" placeholder="Buscar campeón…" autocomplete="off" spellcheck="false">
         <ul></ul>
@@ -335,10 +424,10 @@ const slotEls = [...grid.children];
 const imgTag = (key, alt = '') => iconURL.has(key) ? `<img src="${iconURL.get(key)}" alt="${esc(alt)}">` : '';
 
 function modsHTML(i) {
-  const s = state.slots[i], k = KEYS[i];
+  const s = state.slots[i];
   return `
     <div class="mhead">
-      <span class="mlabel">Mods·<b>${k}</b></span>
+      <span class="mlabel">Mods·<b>${esc(ROLES[i].label)}</b></span>
       <button class="reset" type="button" data-act="reset">${resetIco}Reset</button>
     </div>
     <div class="mrow"><span>Haste</span><div class="haste">
@@ -357,18 +446,19 @@ function hasteFor(s, isUlt) {
   if (isUlt) SOLO_R.forEach(o => { if (s.solo.includes(o.id)) h += o.v; });
   return h;
 }
+const rankOf = (s, n, sp) => Math.min(s.ranks[n] || 0, sp.cd.length - 1);
 
 async function renderSlot(i) {
-  const el = slotEls[i], s = state.slots[i], k = KEYS[i];
+  const el = slotEls[i], s = state.slots[i], role = ROLES[i];
   const ch = s.champ ? byId.get(s.champ) : null;
   el._r = (el._r || 0) + 1; const token = el._r;
   if (ch) await ensureIcons(ch.spells.map(x => 's/' + x.img));
   if (token !== el._r) return;
 
   $('.picker', el).innerHTML =
-    `<span class="letter">${k}</span>
+    `<span class="letter">${role.short}</span>
      <span class="pic">${ch ? imgTag('c/' + ch.img, ch.name) : ''}</span>
-     <span class="pname${ch ? '' : ' empty'}">${ch ? esc(ch.name) : 'Campeón ' + k}</span>${chevron}`;
+     <span class="pname${ch ? '' : ' empty'}">${ch ? esc(ch.name) : 'Elige ' + esc(role.label)}</span>${chevron}`;
   $('.clear', el).classList.toggle('on', !!ch);
   $('.mods', el).innerHTML = modsHTML(i);
 
@@ -379,17 +469,139 @@ async function renderSlot(i) {
     return;
   }
   cds.className = 'cds';
-  cds.innerHTML = `<div class="ctitle"><b>${k}</b>${esc(ch.name)}</div>` + ch.spells.slice(0, 4).map((sp, n) => {
-    const h = hasteFor(s, n === 3);
+  cds.innerHTML = `<div class="ctitle"><b>${esc(role.label)}</b>${esc(ch.name)}</div>` + ch.spells.slice(0, 4).map((sp, n) => {
+    const h = hasteFor(s, n === 3), rk = rankOf(s, n, sp);
     const ico = imgTag('s/' + sp.img, sp.name) || '<div class="ph"></div>';
     return `<div class="spell">
-      <div class="sico">${ico}<b class="key${n === 3 ? ' r' : ''}">${'QWER'[n]}</b></div>
+      <button type="button" class="sico" data-act="timer" data-s="${n}" title="Iniciar timer de ${esc(sp.name)} (nivel ${rk + 1})">${ico}<b class="key${n === 3 ? ' r' : ''}">${'QWER'[n]}</b></button>
       <div class="sinfo"><div class="sname" title="${esc(sp.name)}">${esc(sp.name)}</div>
-        <div class="chips">${sp.cd.map(b => `<span class="chip">${fmt(cdWith(b, h))}</span>`).join('')}</div></div>
+        <div class="chips">${sp.cd.map((b, x) => `<button type="button" class="chip${x === rk ? ' sel' : ''}" data-act="rank" data-s="${n}" data-v="${x}" title="Usar nivel ${x + 1} para el timer">${fmt(cdWith(b, h))}</button>`).join('')}</div></div>
     </div>`;
   }).join('');
 }
 const renderAll = () => Promise.all(KEYS.map((_, i) => renderSlot(i)));
+
+/* ------------------------------- avisos ------------------------------ */
+let actx = null;
+function unlockAudio() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+  } catch (_) {}
+}
+['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, unlockAudio));
+
+function beep() {
+  if (!settings.sound || !actx) return;
+  [0, 0.18, 0.36].forEach((d, i) => {
+    const t0 = actx.currentTime + d, o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine'; o.frequency.value = i === 2 ? 1175 : 880;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.15);
+    o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + 0.16);
+  });
+}
+
+let speaking = false, ignoreUntil = 0;
+function say(text) {
+  if (!settings.voice || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = VOICE_LANG;
+    const v = (speechSynthesis.getVoices() || []).find(x => x.lang && x.lang.toLowerCase().startsWith('es'));
+    if (v) u.voice = v;
+    speaking = true;
+    const end = () => { speaking = false; ignoreUntil = Date.now() + 1200; };
+    u.onend = end; u.onerror = end;
+    setTimeout(() => { if (speaking) end(); }, 9000);   // por si el navegador nunca avisa del final
+    speechSynthesis.speak(u);
+  } catch (_) { speaking = false; }
+}
+
+function toast(msg, kind = '', ms = 6500) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + kind; t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+
+/* ------------------------------- timers ------------------------------ */
+let timers = [];
+const saveTimers = () => lsSet(LS_TIMERS, timers);
+
+function startTimer(slot, spell, rankOverride) {
+  const s = state.slots[slot], role = ROLES[slot];
+  const ch = s.champ ? byId.get(s.champ) : null;
+  if (!ch) return { ok: false, msg: `${role.label}: todavía no hay campeón elegido` };
+  const sp = ch.spells[spell];
+  if (!sp) return { ok: false, msg: `${ch.name} no tiene esa habilidad` };
+  if (rankOverride != null) {
+    s.ranks[spell] = Math.max(0, Math.min(sp.cd.length - 1, rankOverride));
+    saveState(); renderSlot(slot);
+  }
+  const rk = rankOf(s, spell, sp), base = sp.cd[rk];
+  if (!base) return { ok: false, msg: `${ch.name} ${'QWER'[spell]} no tiene cooldown` };
+  const total = cdWith(base, hasteFor(s, spell === 3)) * 1000;
+  const t = {
+    id: slot + '-' + spell, slot, spell, total, endAt: Date.now() + total,
+    champ: ch.name, role: role.label, key: 'QWER'[spell], img: sp.img,
+  };
+  timers = timers.filter(x => x.id !== t.id); timers.push(t);
+  saveTimers(); syncTimers();
+  return { ok: true, msg: `${role.label} · ${ch.name} ${t.key} · ${fmt(total / 1000)}`, t };
+}
+function cancelTimers(pred) {
+  const before = timers.length;
+  timers = timers.filter(t => !pred(t));
+  if (timers.length !== before) { saveTimers(); syncTimers(); }
+  return before - timers.length;
+}
+
+function syncTimers() {
+  const box = $('#timers'), now = Date.now(), ids = new Set(timers.map(t => t.id));
+  [...box.children].forEach(el => { if (!ids.has(el.dataset.id)) el.remove(); });
+  timers.forEach(t => {
+    let el = [...box.children].find(e => e.dataset.id === t.id);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'timer'; el.dataset.id = t.id;
+      el.style.setProperty('--c', 'var(--c-' + KEYS[t.slot] + ')');
+      el.innerHTML = `<i class="fill"></i><span class="tl"><b>${esc(t.role)}</b>${esc(t.champ)} <em>${t.key}</em></span><span class="tt"></span><button type="button" class="tx" data-act="tcancel" aria-label="Cancelar timer">×</button>`;
+      box.appendChild(el);
+    }
+    const rem = Math.max(0, t.endAt - now);
+    $('.tt', el).textContent = fmtRem(rem);
+    $('.fill', el).style.width = (rem / t.total * 100) + '%';
+  });
+  $('#timersEmpty').style.display = timers.length ? 'none' : '';
+}
+
+function fire(t) {
+  const msg = `${t.champ} tiene ${t.key} disponible`;
+  toast('✔ ' + msg);
+  beep();
+  setTimeout(() => say(msg), 600);
+}
+
+function tick() {
+  const now = Date.now(), done = timers.filter(t => t.endAt <= now);
+  if (done.length) { timers = timers.filter(t => t.endAt > now); saveTimers(); done.forEach(fire); }
+  syncTimers();
+}
+function startClock() {                     // en un Worker para que el navegador no lo ralentice en segundo plano
+  try {
+    const w = new Worker(URL.createObjectURL(new Blob(['setInterval(function(){postMessage(1)},250)'], { type: 'text/javascript' })));
+    w.onmessage = tick;
+  } catch (_) { setInterval(tick, 250); }
+}
+function loadTimers() {
+  timers = lsGet(LS_TIMERS, []).filter(t => {
+    const s = state.slots[t.slot], ch = s && s.champ && byId.get(s.champ);
+    return t && t.endAt > Date.now() && ch && ch.name === t.champ;
+  });
+  saveTimers(); syncTimers();
+}
 
 /* ---------------------------- desplegable ---------------------------- */
 let openIdx = -1;
@@ -414,9 +626,13 @@ function openDD(i) {
   const inp = $('input', dd); inp.value = '';
   fillDD(i); inp.focus();
 }
-function pick(i, id) {
-  state.slots[i].champ = id; saveState(); closeDD(); renderSlot(i);
+function changeChamp(i, id) {
+  const s = state.slots[i];
+  s.champ = id; s.ranks = [0, 0, 0, 0];
+  cancelTimers(t => t.slot === i);
+  saveState(); renderSlot(i);
 }
+function pick(i, id) { closeDD(); changeChamp(i, id); }
 
 grid.addEventListener('click', e => {
   const slotEl = e.target.closest('.slot');
@@ -427,7 +643,12 @@ grid.addEventListener('click', e => {
   const i = KEYS.indexOf(slotEl.dataset.k), s = state.slots[i];
   switch (btn.dataset.act) {
     case 'open':  return openDD(i);
-    case 'clear': s.champ = null; break;
+    case 'clear': return changeChamp(i, null);
+    case 'timer': {
+      const r = startTimer(i, +btn.dataset.s);
+      return toast(r.ok ? '▶ ' + r.msg : r.msg, r.ok ? 'info' : 'err', 2500);
+    }
+    case 'rank':  s.ranks[+btn.dataset.s] = +btn.dataset.v; break;
     case 'haste': s.haste = +btn.dataset.v; break;
     case 'rune':  s.rune = !s.rune; break;
     case 'solo': {
@@ -449,8 +670,171 @@ grid.addEventListener('keydown', e => {
     if (li) pick(openIdx, li.dataset.id);
   }
 });
+$('#timers').addEventListener('click', e => {
+  const b = e.target.closest('[data-act=tcancel]');
+  if (b) cancelTimers(t => t.id === b.closest('.timer').dataset.id);
+});
 document.addEventListener('click', e => { if (!e.target.closest('.pickwrap')) closeDD(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDD(); });
+
+/* ------------------------------ comandos ----------------------------- */
+const NUM_WORDS = { uno: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5 };
+
+function lev(a, b) {
+  const m = a.length, n = b.length;
+  if (!m || !n) return Math.max(m, n);
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+
+function firstMatch(t, table) {                 // palabra/alias que aparece antes en la frase
+  let best = null;
+  table.forEach(([val, words]) => words.forEach(w => {
+    const i = t.indexOf(' ' + w + ' ');
+    if (i >= 0 && (!best || i < best.i)) best = { val, i };
+  }));
+  return best && best.val;
+}
+
+function slotByChampion(t) {
+  const words = t.trim().split(' '), cands = [...words];
+  for (let i = 0; i < words.length - 1; i++) cands.push(words[i] + words[i + 1]);
+  for (let i = 0; i < state.slots.length; i++) {
+    const ch = state.slots[i].champ && byId.get(state.slots[i].champ);
+    if (!ch) continue;
+    const n = norm(ch.name).replace(/[^a-z0-9]/g, '');
+    if (n.length < 3) continue;
+    const tol = n.length >= 7 ? 2 : n.length >= 5 ? 1 : 0;
+    if (cands.some(c => c.length >= 3 && lev(c, n) <= tol)) return i;
+  }
+  return null;
+}
+
+function parseCommand(raw) {
+  const t = ' ' + norm(raw).replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+  const cancel = / (cancela|cancelar|cancelo|para|parar|quita|quitar|borra|borrar|deten|detener) /.test(t);
+  if (cancel && / (todo|todos|todas) /.test(t)) return { type: 'cancelAll' };
+
+  let slot = firstMatch(t, ROLES.map((r, i) => [i, r.words]));
+  if (slot == null) slot = slotByChampion(t);
+  const spell = firstMatch(t, SPELL_WORDS.map(([k, w], i) => [i, w]));
+
+  if (cancel) {
+    if (slot != null && spell != null) return { type: 'cancel', slot, spell };
+    if (slot != null) return { type: 'cancelSlot', slot };
+    return null;
+  }
+  if (slot == null || spell == null) return null;
+  const m = t.match(/ (?:nivel|rango|rank|lvl|level) (\d|uno|dos|tres|cuatro|cinco) /);
+  const rank = m ? ((NUM_WORDS[m[1]] || +m[1]) - 1) : null;
+  return { type: 'start', slot, spell, rank };
+}
+
+function runCommand(cmd) {
+  switch (cmd.type) {
+    case 'start': {
+      const r = startTimer(cmd.slot, cmd.spell, cmd.rank);
+      return { ok: r.ok, msg: (r.ok ? '▶ ' : '') + r.msg };
+    }
+    case 'cancel': {
+      const n = cancelTimers(t => t.slot === cmd.slot && t.spell === cmd.spell);
+      return { ok: n > 0, msg: n ? `Cancelado ${ROLES[cmd.slot].label} ${'QWER'[cmd.spell]}` : 'Ese timer no estaba activo' };
+    }
+    case 'cancelSlot': {
+      const n = cancelTimers(t => t.slot === cmd.slot);
+      return { ok: n > 0, msg: n ? `Cancelados los timers de ${ROLES[cmd.slot].label}` : 'No había timers de esa línea' };
+    }
+    case 'cancelAll': {
+      const n = cancelTimers(() => true);
+      return { ok: n > 0, msg: n ? 'Cancelados todos los timers' : 'No había timers activos' };
+    }
+  }
+}
+
+/* -------------------------------- voz -------------------------------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false;
+const vs = $('#voiceStatus'), micBtn = $('#micBtn');
+const voiceHelp = 'Di: «top Q», «jungla R», «mid W nivel 3» o «Q de Darius».';
+function setStatus(msg, cls = '') { vs.textContent = msg; vs.className = 'vstatus ' + cls; }
+function micUI() {
+  micBtn.classList.toggle('live', listening);
+  $('#micTxt').textContent = listening ? 'Escuchando… (parar)' : 'Activar voz';
+}
+
+function handleSpeech(alts) {
+  if (speaking || Date.now() < ignoreUntil) return;           // no oírnos a nosotros mismos
+  if (alts.some(a => /disponible/.test(norm(a)))) return;
+  for (const a of alts) {
+    const cmd = parseCommand(a);
+    if (!cmd) continue;
+    const r = runCommand(cmd);
+    setStatus(`«${a.trim()}» → ${r.msg}`, r.ok ? 'ok' : 'err');
+    if (!r.ok) toast(r.msg, 'err', 3000);
+    return;
+  }
+  setStatus(`No entendí «${(alts[0] || '').trim()}». ${voiceHelp}`, 'err');
+}
+
+function startListening() {
+  unlockAudio();
+  rec = new SR();
+  rec.lang = VOICE_LANG; rec.continuous = true; rec.interimResults = false; rec.maxAlternatives = 3;
+  rec.onresult = e => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const r = e.results[i];
+      if (r.isFinal) handleSpeech(Array.from(r).map(a => a.transcript));
+    }
+  };
+  rec.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      listening = false; micUI(); setStatus('Permiso de micrófono denegado. Actívalo en el candado de la barra de direcciones.', 'err');
+    } else if (e.error === 'network') {
+      listening = false; micUI(); setStatus('El reconocimiento de voz de Chrome necesita conexión a internet.', 'err');
+    } else if (e.error === 'audio-capture') {
+      listening = false; micUI(); setStatus('No se encontró ningún micrófono.', 'err');
+    }
+  };
+  rec.onend = () => {
+    if (listening) setTimeout(() => { try { rec.start(); } catch (_) {} }, 300);
+    else micUI();
+  };
+  listening = true; micUI();
+  setStatus('Escuchando. ' + voiceHelp);
+  try { rec.start(); } catch (_) {}
+}
+function stopListening() {
+  listening = false; micUI();
+  try { rec && rec.stop(); } catch (_) {}
+  setStatus('Voz apagada. ' + voiceHelp);
+}
+
+if (!SR) {
+  micBtn.disabled = true;
+  setStatus('Tu navegador no admite reconocimiento de voz (usa Chrome o Edge). Los timers se inician tocando el icono de la habilidad.', 'err');
+} else {
+  micBtn.addEventListener('click', () => listening ? stopListening() : startListening());
+}
+
+function syncToggles() {
+  [['#tgSound', 'sound'], ['#tgVoice', 'voice']].forEach(([sel, k]) => {
+    $(sel).classList.toggle('on', !!settings[k]); $(sel).setAttribute('aria-pressed', !!settings[k]);
+  });
+}
+$('#tgSound').addEventListener('click', () => { settings.sound = !settings.sound; saveSettings(); syncToggles(); });
+$('#tgVoice').addEventListener('click', () => { settings.voice = !settings.voice; saveSettings(); syncToggles(); });
+$('#testBtn').addEventListener('click', () => {
+  unlockAudio();
+  const s = state.slots.find(x => x.champ), ch = s && byId.get(s.champ);
+  fire({ champ: ch ? ch.name : 'Tu rival', key: 'Q' });
+});
 
 /* --------------------- descarga / actualización ---------------------- */
 const setup = $('#setup'), setupBtn = $('#setupBtn'), setupMsg = $('#setupMsg');
@@ -467,7 +851,7 @@ async function runDownload() {
   try {
     await download((p, msg) => { barFill.style.width = Math.round(p * 100) + '%'; setupMsg.textContent = msg; });
     await loadData();
-    loadState(); showInfo(); setup.classList.remove('show');
+    loadState(); loadTimers(); syncToggles(); showInfo(); setup.classList.remove('show');
     await renderAll();
     return true;
   } catch (err) {
@@ -497,6 +881,8 @@ $('#updBtn').addEventListener('click', async () => {
 
 /* -------------------------------- inicio ------------------------------ */
 (async () => {
+  startClock();
+  syncToggles(); syncTimers();
   try { db = await openDB(); }
   catch (_) {
     setup.classList.add('show'); setupBtn.style.display = 'none';
@@ -506,7 +892,7 @@ $('#updBtn').addEventListener('click', async () => {
   }
   const ok = await loadData();
   if (!ok) { setup.classList.add('show'); await renderAll(); return; }
-  loadState(); showInfo(); await renderAll();
+  loadState(); loadTimers(); syncToggles(); showInfo(); await renderAll();
 })();
 })();
 </script>
